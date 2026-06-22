@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Th",
   "main": "index.js",
+  "packageManager": "pnpm@8.15.4",
   "scripts": {
     "dev": "nest start --watch",
     "watch": "nest start --watch",

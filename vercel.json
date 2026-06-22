@@ -12,7 +12,7 @@
       "dest": "src/main.ts"
     }
   ],
-  "installCommand": "pnpm install --legacy-peer-deps",
+  "installCommand": "pnpm install --legacy-peer-deps --shamefully-hoist --strict-peer-dependencies=false",
   "buildCommand": "pnpm run build",
   "outputDirectory": "dist"
 }

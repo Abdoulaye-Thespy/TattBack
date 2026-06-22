@@ -1,0 +1,60 @@
+import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards, NotFoundException } from '@nestjs/common';
+import { SystemSettingsService } from './system-settings.service';
+import { JwtAuthGuard } from '../iam/auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { SystemRole } from '../iam/enums/roles.enum';
+
+@Controller('admin/settings')
+@UseGuards(JwtAuthGuard, RolesGuard)
+export class SystemSettingsController {
+    constructor(private readonly settingsService: SystemSettingsService) { }
+
+    @Get('telemetry')
+    @Roles(SystemRole.SUPERADMIN, SystemRole.ADMIN)
+    async getTelemetry(): Promise<{ totalEmailsSent: number; serverTime: string; status: string; error?: string }> {
+        try {
+            const totalEmails = await this.settingsService.getRawValue('TOTAL_EMAILS_SENT');
+            return {
+                totalEmailsSent: parseInt(totalEmails || '0', 10),
+                serverTime: new Date().toISOString(),
+                status: 'OPERATIONAL'
+            };
+        } catch (error) {
+            return {
+                totalEmailsSent: 0,
+                serverTime: new Date().toISOString(),
+                status: 'DEGRADED',
+                error: (error as Error).message
+            };
+        }
+    }
+
+    @Get()
+    @Roles(SystemRole.SUPERADMIN, SystemRole.ADMIN)
+    async findAll() {
+        return this.settingsService.findAll();
+    }
+
+    @Put(':key')
+    @Roles(SystemRole.SUPERADMIN, SystemRole.ADMIN)
+    async update(
+        @Param('key') key: string,
+        @Body() body: { value: string; category?: string; description?: string, isSecret?: boolean },
+    ) {
+        return this.settingsService.update(key, body.value, body.category || 'GENERAL', body.description, body.isSecret);
+    }
+    
+    @Delete(':key')
+    @Roles(SystemRole.SUPERADMIN)
+    async remove(@Param('key') key: string) {
+        return this.settingsService.remove(key);
+    }
+
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Post('test-smtp')
+    @Roles(SystemRole.SUPERADMIN)
+    async testSmtp(@Body('email') email: string) {
+        return this.settingsService.testSmtpConnection(email);
+    }
+}

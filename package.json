@@ -26,6 +26,10 @@
     "url": "https://github.com/the-african-think-tank/TATT-Management-App-Backend/issues"
   },
   "homepage": "https://github.com/the-african-think-tank/TATT-Management-App-Backend#readme",
+  "peerDependencies": {
+    "pg": "^8.22.0",
+    "pg-hstore": "^2.3.4"
+  },
   "dependencies": {
     "@nestjs-modules/mailer": "^1.8.1",
     "@nestjs/common": "^11.1.14",
